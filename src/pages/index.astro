@@ -9,13 +9,25 @@ const transfers = data.tweets
   .filter(tweet => tweet.isFootballTransfer)
   .sort((a, b) => b.timestamp - a.timestamp);
 
-// Group transfers by player name
+// Group transfers by player name and include transfer amount from most reliable source
 const groupedTransfers = transfers.reduce((acc, transfer) => {
   const playerName = transfer.playerName || 'Unknown Player';
   if (!acc[playerName]) {
-    acc[playerName] = [];
+    acc[playerName] = {
+      transfers: [],
+      transferAmount: null,
+      maxReliability: 0
+    };
   }
-  acc[playerName].push(transfer);
+  // Add transfer to the group
+  acc[playerName].transfers.push(transfer);
+  
+  // Update transfer amount if this source is more reliable
+  const reliability = transfer.reliability || 0;
+  if (transfer.transferAmount && reliability > acc[playerName].maxReliability) {
+    acc[playerName].transferAmount = transfer.transferAmount;
+    acc[playerName].maxReliability = reliability;
+  }
   return acc;
 }, {});
 ---
@@ -38,11 +50,18 @@ const groupedTransfers = transfers.reduce((acc, transfer) => {
 
 		<main class="container mx-auto px-4 py-8">
 			<div class="grid gap-8">
-				{Object.entries(groupedTransfers).map(([playerName, playerTransfers]) => (
+				{Object.entries(groupedTransfers).map(([playerName, data]) => (
 					<div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-						<h2 class="text-2xl font-bold text-gray-900 mb-4">{playerName}</h2>
+						<div class="flex items-center justify-between mb-4">
+							<h2 class="text-2xl font-bold text-gray-900">{playerName}</h2>
+							{data.transferAmount && (
+								<span class="text-lg font-semibold text-green-600">
+									{data.transferAmount}
+								</span>
+							)}
+						</div>
 						<div class="space-y-4">
-							{playerTransfers.map(transfer => (
+							{data.transfers.map(transfer => (
 								<article class="border-t pt-4 first:border-t-0 first:pt-0">
 									<div class="flex items-start justify-between">
 										<div class="space-y-2">
