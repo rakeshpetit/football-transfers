@@ -1,3 +1,58 @@
 ---
-return Astro.redirect('/transfers/1');
+import '../styles/global.css';
+import TransfersList from '../components/TransfersList.astro';
+
+// Import tweets data
+import data from '../../public/data/latest.json';
+
+// Filter only transfer related tweets and sort by timestamp
+const transfers = data.tweets
+  .filter(tweet => tweet.isFootballTransfer)
+  .sort((a, b) => b.timestamp - a.timestamp);
+
+// Create a page object that matches Astro's pagination interface
+const page = {
+  data: transfers.slice(0, 10),
+  start: 0,
+  end: 10,
+  total: transfers.length,
+  currentPage: 1,
+  size: 10,
+  lastPage: Math.ceil(transfers.length / 10),
+  url: {
+    current: '/',
+    prev: undefined,
+    next: '/transfers/2',
+    first: undefined,
+    last: `/transfers/${Math.ceil(transfers.length / 10)}`
+  }
+};
 ---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Football Transfer News</title>
+	</head>
+	<body class="bg-gray-100 min-h-screen">
+		<header class="bg-blue-600 text-white py-6 shadow-lg">
+			<div class="container mx-auto px-4">
+				<h1 class="text-3xl font-bold">Football Transfer News</h1>
+				<p class="text-blue-100">Latest transfer updates from trusted sources</p>
+			</div>
+		</header>
+
+		<main class="container mx-auto px-4 py-8">
+			<TransfersList page={page} />
+		</main>
+
+		<footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+			<div class="container mx-auto px-4 text-center">
+				<p>© 2025 Football Transfer News. All rights reserved.</p>
+			</div>
+		</footer>
+	</body>
+</html>
