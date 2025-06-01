@@ -1,5 +1,13 @@
 ---
+import '../styles/global.css';
 
+// Import tweets data
+import data from '../../public/data/tweets_2025-06-01.json';
+
+// Filter only transfer related tweets and sort by timestamp
+const transfers = data.tweets
+  .filter(tweet => tweet.isFootballTransfer)
+  .sort((a, b) => b.timestamp - a.timestamp);
 ---
 
 <html lang="en">
@@ -8,9 +16,70 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>Football Transfer News</title>
 	</head>
-	<body>
-		<h1>Astro</h1>
+	<body class="bg-gray-100 min-h-screen">
+		<header class="bg-blue-600 text-white py-6 shadow-lg">
+			<div class="container mx-auto px-4">
+				<h1 class="text-3xl font-bold">Football Transfer News</h1>
+				<p class="text-blue-100">Latest transfer updates from trusted sources</p>
+			</div>
+		</header>
+
+		<main class="container mx-auto px-4 py-8">
+			<div class="grid gap-6">
+				{transfers.map(transfer => (
+					<article class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+						<div class="flex items-start justify-between">
+							<div class="space-y-2">
+								<h2 class="text-xl font-semibold text-gray-900">
+									{transfer.playerName || 'Unknown Player'}
+								</h2>
+								<div class="flex items-center space-x-2 text-sm text-gray-600">
+									<span>{transfer.sourceClub || 'Unknown Club'}</span>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+									</svg>
+									<span>{transfer.destinationClub || 'Unknown Club'}</span>
+								</div>
+							</div>
+							<div class="flex items-center">
+								<div class={`px-3 py-1 rounded-full text-sm font-medium
+									${transfer.reliability >= 4 ? 'bg-green-100 text-green-800' : 
+									transfer.reliability >= 2 ? 'bg-yellow-100 text-yellow-800' : 
+									'bg-red-100 text-red-800'}`}>
+									{`${transfer.reliability * 10}% Reliable`}
+								</div>
+							</div>
+						</div>
+
+						<p class="mt-4 text-gray-600">{transfer.text}</p>
+
+						<div class="mt-4 flex items-center justify-between text-sm">
+							<div class="flex items-center space-x-2 text-gray-500">
+								<span>Reported by:</span>
+								<a href={`https://twitter.com/${transfer.username}`} target="_blank" rel="noopener noreferrer" 
+									class="text-blue-600 hover:underline">
+									{transfer.name}
+								</a>
+							</div>
+							<a href={transfer.permanentUrl} target="_blank" rel="noopener noreferrer" 
+								class="text-blue-600 hover:underline flex items-center space-x-1">
+								<span>View Tweet</span>
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+								</svg>
+							</a>
+						</div>
+					</article>
+				))}
+			</div>
+		</main>
+
+		<footer class="bg-gray-800 text-gray-400 py-8 mt-12">
+			<div class="container mx-auto px-4 text-center">
+				<p>© 2025 Football Transfer News. All rights reserved.</p>
+			</div>
+		</footer>
 	</body>
 </html>
