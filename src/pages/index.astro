@@ -8,6 +8,16 @@ import data from '../../public/data/tweets_2025-06-01.json';
 const transfers = data.tweets
   .filter(tweet => tweet.isFootballTransfer)
   .sort((a, b) => b.timestamp - a.timestamp);
+
+// Group transfers by player name
+const groupedTransfers = transfers.reduce((acc, transfer) => {
+  const playerName = transfer.playerName || 'Unknown Player';
+  if (!acc[playerName]) {
+    acc[playerName] = [];
+  }
+  acc[playerName].push(transfer);
+  return acc;
+}, {});
 ---
 
 <html lang="en">
@@ -27,51 +37,55 @@ const transfers = data.tweets
 		</header>
 
 		<main class="container mx-auto px-4 py-8">
-			<div class="grid gap-6">
-				{transfers.map(transfer => (
-					<article class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-						<div class="flex items-start justify-between">
-							<div class="space-y-2">
-								<h2 class="text-xl font-semibold text-gray-900">
-									{transfer.playerName || 'Unknown Player'}
-								</h2>
-								<div class="flex items-center space-x-2 text-sm text-gray-600">
-									<span>{transfer.sourceClub || 'Unknown Club'}</span>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-									</svg>
-									<span>{transfer.destinationClub || 'Unknown Club'}</span>
-								</div>
-							</div>
-							<div class="flex items-center">
-								<div class={`px-3 py-1 rounded-full text-sm font-medium
-									${(transfer.reliability * 10) > 70 ? 'bg-green-100 text-green-800' : 
-									(transfer.reliability * 10) > 40 ? 'bg-yellow-100 text-yellow-800' : 
-									'bg-red-100 text-red-800'}`}>
-									{`${transfer.reliability * 10}% Reliable`}
-								</div>
-							</div>
-						</div>
+			<div class="grid gap-8">
+				{Object.entries(groupedTransfers).map(([playerName, playerTransfers]) => (
+					<div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+						<h2 class="text-2xl font-bold text-gray-900 mb-4">{playerName}</h2>
+						<div class="space-y-4">
+							{playerTransfers.map(transfer => (
+								<article class="border-t pt-4 first:border-t-0 first:pt-0">
+									<div class="flex items-start justify-between">
+										<div class="space-y-2">
+											<div class="flex items-center space-x-2 text-base text-gray-800">
+												<span class="font-semibold">{transfer.sourceClub || 'Unknown Club'}</span>
+												<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+												</svg>
+												<span class="font-semibold">{transfer.destinationClub || 'Unknown Club'}</span>
+											</div>
+										</div>
+										<div class="flex items-center">
+											<div class={`px-3 py-1 rounded-full text-sm font-medium
+												${(transfer.reliability * 10) > 70 ? 'bg-green-100 text-green-800' : 
+												(transfer.reliability * 10) > 40 ? 'bg-yellow-100 text-yellow-800' : 
+												'bg-red-100 text-red-800'}`}>
+												{`${transfer.reliability * 10}% Reliable`}
+											</div>
+										</div>
+									</div>
 
-						<p class="mt-4 text-gray-600">{transfer.text}</p>
+									<p class="mt-4 text-gray-600">{transfer.text}</p>
 
-						<div class="mt-4 flex items-center justify-between text-sm">
-							<div class="flex items-center space-x-2 text-gray-500">
-								<span>Reported by:</span>
-								<a href={`https://twitter.com/${transfer.username}`} target="_blank" rel="noopener noreferrer" 
-									class="text-blue-600 hover:underline">
-									{transfer.name}
-								</a>
-							</div>
-							<a href={transfer.permanentUrl} target="_blank" rel="noopener noreferrer" 
-								class="text-blue-600 hover:underline flex items-center space-x-1">
-								<span>View Tweet</span>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-								</svg>
-							</a>
+									<div class="mt-4 flex items-center justify-between text-sm">
+										<div class="flex items-center space-x-2 text-gray-500">
+											<span>Reported by:</span>
+											<a href={`https://twitter.com/${transfer.username}`} target="_blank" rel="noopener noreferrer" 
+												class="text-blue-600 hover:underline">
+												{transfer.name}
+											</a>
+										</div>
+										<a href={transfer.permanentUrl} target="_blank" rel="noopener noreferrer" 
+											class="text-blue-600 hover:underline flex items-center space-x-1">
+											<span>View Tweet</span>
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+											</svg>
+										</a>
+									</div>
+								</article>
+							))}
 						</div>
-					</article>
+					</div>
 				))}
 			</div>
 		</main>
