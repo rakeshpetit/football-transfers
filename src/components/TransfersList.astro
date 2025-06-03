@@ -1,6 +1,19 @@
 ---
 const { page } = Astro.props;
 
+// Function to format timestamp
+function formatDate(transfer: any): string {
+  // Convert Unix timestamp (seconds) to milliseconds for Date constructor
+  const date = new Date(transfer.timestamp * 1000);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 // Function to clean text by removing all URLs
 function cleanText(text: string): string {
   return text.replace(/https?:\/\/[^\s]+/g, '') // Remove any URL starting with http:// or https://
@@ -98,12 +111,20 @@ function getPageNumbers(currentPage: number, lastPage: number) {
                         <p class="mt-4 text-gray-600">{cleanText(transfer.text)}</p>
 
                         <div class="mt-4 flex items-center justify-between text-sm">
-                            <div class="flex items-center space-x-2 text-gray-500">
-                                <span>Reported by:</span>
-                                <a href={`https://twitter.com/${transfer.username}`} target="_blank" rel="noopener noreferrer" 
-                                    class="text-blue-600 hover:underline">
-                                    {transfer.name}
-                                </a>
+                            <div class="flex items-center space-x-4 text-gray-500">
+                                <div class="flex items-center space-x-2">
+                                    <span>Reported by:</span>
+                                    <a href={`https://twitter.com/${transfer.username}`} target="_blank" rel="noopener noreferrer" 
+                                        class="text-blue-600 hover:underline">
+                                        {transfer.name}
+                                    </a>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{formatDate(transfer)}</span>
+                                </div>
                             </div>
                             <a href={transfer.permanentUrl} target="_blank" rel="noopener noreferrer" 
                                 class="text-blue-600 hover:underline flex items-center space-x-1">
