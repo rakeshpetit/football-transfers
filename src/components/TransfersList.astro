@@ -23,6 +23,35 @@ const groupedTransfers = page.data.reduce((acc, transfer) => {
   }
   return acc;
 }, {});
+
+// Function to generate page numbers array with ellipsis
+function getPageNumbers(currentPage: number, lastPage: number) {
+    const delta = 2; // Number of pages to show on each side of current page
+    const range = [];
+    
+    for (let i = 1; i <= lastPage; i++) {
+        if (
+            i === 1 || // First page
+            i === lastPage || // Last page
+            (i >= currentPage - delta && i <= currentPage + delta) // Pages around current
+        ) {
+            range.push(i);
+        }
+    }
+    
+    const withEllipsis = [];
+    let prev = 0;
+    
+    for (const curr of range) {
+        if (prev && curr - prev > 1) {
+            withEllipsis.push('...');
+        }
+        withEllipsis.push(curr);
+        prev = curr;
+    }
+    
+    return withEllipsis;
+}
 ---
 
 <div class="grid gap-8">
@@ -92,18 +121,20 @@ const groupedTransfers = page.data.reduce((acc, transfer) => {
         </a>
     )}
     
-    <div class="flex items-center space-x-1">
-        {[...Array(page.lastPage)].map((_, i) => (
-            <a
-                href={i === 0 ? '/' : `/transfers/${i + 1}`}
-                class={`px-3 py-1 rounded-md ${
-                    page.currentPage === i + 1
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-blue-600 hover:bg-blue-50'
-                }`}
-            >
-                {i + 1}
-            </a>
+    <div class="flex flex-wrap items-center gap-1">
+        {getPageNumbers(page.currentPage, page.lastPage).map((pageNum) => (
+            pageNum === '...' 
+                ? <span class="px-2">{pageNum}</span>
+                : <a
+                    href={pageNum === 1 ? '/' : `/transfers/${pageNum}`}
+                    class={`px-3 py-1 rounded-md ${
+                        page.currentPage === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-white text-blue-600 hover:bg-blue-50'
+                    }`}
+                >
+                    {pageNum}
+                </a>
         ))}
     </div>
 
