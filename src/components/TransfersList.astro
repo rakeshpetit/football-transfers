@@ -1,6 +1,13 @@
 ---
 const { page } = Astro.props;
 
+// Function to clean text by removing all URLs
+function cleanText(text: string): string {
+  return text.replace(/https?:\/\/[^\s]+/g, '') // Remove any URL starting with http:// or https://
+    .replace(/\s+/g, ' ') // Remove extra spaces that might be left after removing URLs
+    .trim();
+}
+
 // Group transfers by player name for the current page
 const groupedTransfers = page.data.reduce((acc, transfer) => {
   const playerName = transfer.playerName || 'Unknown Player';
@@ -88,7 +95,7 @@ function getPageNumbers(currentPage: number, lastPage: number) {
                             </div>
                         </div>
 
-                        <p class="mt-4 text-gray-600">{transfer.text}</p>
+                        <p class="mt-4 text-gray-600">{cleanText(transfer.text)}</p>
 
                         <div class="mt-4 flex items-center justify-between text-sm">
                             <div class="flex items-center space-x-2 text-gray-500">
